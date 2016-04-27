@@ -38,3 +38,11 @@ $folders = $this->imap->get_folders();
 ## Output example
 
 ![Output Example](https://raw.githubusercontent.com/natanfelles/codeigniter-imap/master/output-example.png)
+
+# Hey! Wait a minute
+
+I am available for freelance.
+
+Working daily with web development and server administration.
+
+Send a message describing your project to natanfelles@gmail.com and we will make it happen!
