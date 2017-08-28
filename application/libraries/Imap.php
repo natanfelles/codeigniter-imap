@@ -434,7 +434,8 @@ class Imap {
 		// get attachment body
 		$partStruct = imap_bodystruct($this->imap_stream, $messageIndex, $attachment['partNum']);
 
-		$filename = $partStruct->dparameters[0]->value;
+		$decodedName = imap_mime_header_decode($partStruct->dparameters[0]->value);
+		$filename = $this->convert_to_utf8($decodedName[0]->text);
 
 		$message = imap_fetchbody($this->imap_stream, $id, $attachment['partNum']);
 
