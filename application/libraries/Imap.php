@@ -737,7 +737,7 @@ class Imap {
 		{
 			if ($attachment['disposition'] == 'inline' && ! empty($attachment['reference']))
 			{
-				$file = $this->get_attachment($email['uid'], $key);
+				$file = $this->get_attachment($email['id'], $key);
 
 				$reference = str_replace(['<', '>'], '', $attachment['reference']);
 				$img_embed = 'data:image/' . strtolower($file['type']) . ';base64,' . base64_encode($file['content']);
