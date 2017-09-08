@@ -46,7 +46,7 @@ class Imap {
 	 *
 	 * @return bool|string True if is connected or string with the imap_error
 	 */
-	public function imap_connect($config = array())
+	public function imap_connect($config = [])
 	{
 		$enc = '';
 		if ($config['encrypto'] != NULL && isset($config['encrypto']) && $config['encrypto'] == 'ssl')
@@ -57,7 +57,7 @@ class Imap {
 		{
 			$enc = '/imap/tls/novalidate-cert';
 		}
-		$this->imap_mailbox = "{" . $config['host'] . $enc . "}";
+		$this->imap_mailbox = '{' . $config['host'] . $enc . '}';
 		$this->imap_stream = @imap_open($this->imap_mailbox, $config['user'], $config['pass']);
 		if ( ! is_resource($this->imap_stream))
 		{
@@ -88,10 +88,10 @@ class Imap {
 	 */
 	public function get_folders()
 	{
-		$folders = imap_list($this->imap_stream, $this->imap_mailbox, "*");
+		$folders = imap_list($this->imap_stream, $this->imap_mailbox, '*');
 		sort($folders);
 
-		return str_replace($this->imap_mailbox, "", $folders);
+		return str_replace($this->imap_mailbox, '', $folders);
 	}
 
 
@@ -105,7 +105,7 @@ class Imap {
 	public function select_folder($folder = '')
 	{
 		$result = imap_reopen($this->imap_stream, $this->imap_mailbox . $folder);
-		if ($result === TRUE)
+		if ($result)
 		{
 			$this->folder = $folder;
 		}
@@ -233,7 +233,6 @@ class Imap {
 	 */
 	public function get_message($id = 0, $withbody = FALSE, $embed_images = FALSE)
 	{
-		//return ['body'=>'','html'=>''];
 		return $this->format_message($id, $withbody, $embed_images);
 	}
 
@@ -255,11 +254,11 @@ class Imap {
 		{
 			$number = $this->count_messages();
 		}
-		$emails = array();
+		$emails = [];
 		$result = imap_search($this->imap_stream, 'ALL');
 		if ($result)
 		{
-			$ids = array();
+			$ids = [];
 			foreach ($result as $k => $i)
 			{
 				$ids[] = $i;
@@ -316,7 +315,7 @@ class Imap {
 		$withbody = FALSE,
 		$embed_images = FALSE)
 	{
-		$emails = array();
+		$emails = [];
 		$result = imap_search($this->imap_stream, $criteria);
 		if ($number == 0)
 		{
@@ -324,7 +323,7 @@ class Imap {
 		}
 		if ($result)
 		{
-			$ids = array();
+			$ids = [];
 			foreach ($result as $k => $i)
 			{
 				$ids[] = $i;
@@ -332,7 +331,7 @@ class Imap {
 			$ids = array_chunk($ids, $number);
 			$ids = array_slice($ids[0], $start, $number);
 
-			$emails = array();
+			$emails = [];
 			foreach ($ids as $id)
 			{
 				$emails[] = $this->format_message($id, $withbody, $embed_images);
@@ -379,11 +378,11 @@ class Imap {
 
 	public function move_message($id = 0, $target = '')
 	{
-		return $this->move_messages(array($id), $target);
+		return $this->move_messages([$id], $target);
 	}
 
 
-	public function move_messages($ids = array(), $target = '')
+	public function move_messages($ids = [], $target = '')
 	{
 		if (imap_mail_move($this->imap_stream, implode(",", $ids), $target, CP_UID) === FALSE)
 		{
@@ -411,13 +410,13 @@ class Imap {
 
 	public function delete_message($id = 0)
 	{
-		return $this->delete_message(array($id));
+		return $this->delete_messages([$id]);
 	}
 
 
-	public function delete_messages($ids = array())
+	public function delete_messages($ids = [])
 	{
-		if (imap_mail_move($this->imap_stream, implode(",", $ids), $this->get_trash(), CP_UID) == FALSE)
+		if (imap_mail_move($this->imap_stream, implode(',', $ids), $this->get_trash(), CP_UID) == FALSE)
 		{
 			return FALSE;
 		}
@@ -434,7 +433,7 @@ class Imap {
 	public function get_all_email_addresses()
 	{
 		$saveCurrentFolder = $this->folder;
-		$emails = array();
+		$emails = [];
 		foreach ($this->get_folders() as $folder)
 		{
 			$this->select_folder($folder);
@@ -458,7 +457,7 @@ class Imap {
 			}
 		}
 
-		$contacts = array();
+		$contacts = [];
 
 		foreach ($emails as $k => $i)
 		{
@@ -487,7 +486,7 @@ class Imap {
 	public function purge()
 	{
 		// delete trash and spam
-		if ($this->folder == $this->get_trash() || strtolower($this->folder) == "spam")
+		if ($this->folder == $this->get_trash() || strtolower($this->folder) == 'spam')
 		{
 			if (imap_delete($this->imap_stream, '1:*') === FALSE)
 			{
@@ -565,19 +564,19 @@ class Imap {
 				break;
 		}
 
-		$file = array(
-			"name"        => $attachment['name'],
-			"size"        => $attachment['size'],
-			"disposition" => $attachment['disposition'],
-			"reference"   => $attachment['reference'],
-			"type"        => $attachment['type'],
-			"content"     => $message,
-		);
+		$file = [
+			'name'        => $attachment['name'],
+			'size'        => $attachment['size'],
+			'disposition' => $attachment['disposition'],
+			'reference'   => $attachment['reference'],
+			'type'        => $attachment['type'],
+			'content'     => $message,
+		];
 
 		if ($tmp_path != '')
 		{
 			$file['content'] = $tmp_path . $filename;
-			$fp = fopen($file['content'], "wb");
+			$fp = fopen($file['content'], 'wb');
 			fwrite($fp, $message);
 			fclose($fp);
 		}
@@ -590,7 +589,7 @@ class Imap {
 	{
 		foreach ($this->get_folders() as $folder)
 		{
-			if (strtolower($folder) === "trash" || strtolower($folder) === "papierkorb")
+			if (strtolower($folder) === 'trash' || strtolower($folder) === 'papierkorb')
 			{
 				return $folder;
 			}
@@ -607,7 +606,7 @@ class Imap {
 	{
 		foreach ($this->get_folders() as $folder)
 		{
-			if (strtolower($folder) === "sent" || strtolower($folder) === "gesendet")
+			if (strtolower($folder) === 'sent' || strtolower($folder) === 'gesendet')
 			{
 				return $folder;
 			}
@@ -650,7 +649,7 @@ class Imap {
 			}
 		}
 		$subject = @$this->convert_to_utf8($subject);
-		$email = array(
+		$email = [
 			'to'       => isset($header->to) ? $this->array_to_address($header->to) : '',
 			'from'     => $this->to_address($header->from[0]),
 			'date'     => $header->udate,
@@ -663,7 +662,7 @@ class Imap {
 			'flagged'  => strlen(trim($header->Flagged)) > 0,
 			'deleted'  => strlen(trim($header->Deleted)) > 0,
 			'size'     => $header->Size,
-		);
+		];
 		if (isset($header->cc))
 		{
 			$email['cc'] = $this->array_to_address($header->cc);
@@ -684,7 +683,7 @@ class Imap {
 		{
 			foreach ($attachments as $val)
 			{
-				$arr = array();
+				$arr = [];
 				foreach ($val as $k => $t)
 				{
 					if ($k == 'name')
@@ -699,7 +698,7 @@ class Imap {
 		}
 
 		// Modify HTML to embed images inline
-		if ((count(@$email['attachments']) > 0) and (@$email['html'] == TRUE) and ($embed_images == TRUE))
+		if ((count(@$email['attachments']) > 0) && (@$email['html'] == TRUE) && ($embed_images == TRUE))
 		{
 			$email['body'] = $this->embed_images($email);
 		}
@@ -717,19 +716,18 @@ class Imap {
 	 */
 	protected function embed_images($email)
 	{
-
 		$html_embed = $email['body'];
 
 		foreach ($email['attachments'] as $key => $attachment)
 		{
-			if ($attachment['disposition'] == 'inline' and ! empty($attachment['reference']))
+			if ($attachment['disposition'] == 'inline' && ! empty($attachment['reference']))
 			{
 				$file = $this->get_attachment($email['uid'], $key);
 
-				$reference = str_replace(array("<", ">"), "", $attachment['reference']);
-				$img_embed = "data:image/" . strtolower($file['type']) . ";base64," . base64_encode($file['content']);
+				$reference = str_replace(['<', '>'], '', $attachment['reference']);
+				$img_embed = 'data:image/' . strtolower($file['type']) . ';base64,' . base64_encode($file['content']);
 
-				$html_embed = str_replace("cid:" . $reference, $img_embed, $html_embed);
+				$html_embed = str_replace('cid:' . $reference, $img_embed, $html_embed);
 			}
 		}
 
@@ -740,7 +738,7 @@ class Imap {
 	/**
 	 * Return general mailbox statistics
 	 *
-	 * @return bool|resource object
+	 * @return object|false object
 	 */
 	public function get_mailbox_statistics()
 	{
@@ -750,7 +748,7 @@ class Imap {
 
 	protected function convert_to_utf8($str = '')
 	{
-		if (mb_detect_encoding($str, "UTF-8, ISO-8859-1, GBK") != "UTF-8")
+		if (mb_detect_encoding($str, 'UTF-8, ISO-8859-1, GBK') != 'UTF-8')
 		{
 			$str = utf8_encode($str);
 		}
@@ -760,9 +758,9 @@ class Imap {
 	}
 
 
-	protected function array_to_address($addresses = array())
+	protected function array_to_address($addresses = [])
 	{
-		$addressesAsString = array();
+		$addressesAsString = [];
 		foreach ($addresses as $address)
 		{
 			$addressesAsString[] = $this->to_address($address);
@@ -772,13 +770,13 @@ class Imap {
 	}
 
 
-	protected function to_address($headerinfos = array())
+	protected function to_address($headerinfos = [])
 	{
-		$from = array();
+		$from = [];
 
 		if (isset($headerinfos->mailbox) && isset($headerinfos->host))
 		{
-			$from['email'] = $headerinfos->mailbox . "@" . $headerinfos->host;
+			$from['email'] = $headerinfos->mailbox . '@' . $headerinfos->host;
 		}
 		else
 		{
@@ -827,20 +825,20 @@ class Imap {
 
 	protected function get_body($uid = 0)
 	{
-		$body = $this->get_part($this->imap_stream, $uid, "TEXT/HTML");
+		$body = $this->get_part($this->imap_stream, $uid, 'TEXT/HTML');
 		$html = TRUE;
 		// if HTML body is empty, try getting text body
-		if ($body == "")
+		if ($body == '')
 		{
-			$body = $this->get_part($this->imap_stream, $uid, "TEXT/PLAIN");
+			$body = $this->get_part($this->imap_stream, $uid, 'TEXT/PLAIN');
 			$html = FALSE;
 		}
 		$body = $this->convert_to_utf8($body);
 
-		return array(
+		return [
 			'body' => $body,
 			'html' => $html,
-		);
+		];
 	}
 
 
@@ -875,10 +873,10 @@ class Imap {
 			{
 				foreach ($structure->parts as $index => $subStruct)
 				{
-					$prefix = "";
+					$prefix = '';
 					if ($partNumber)
 					{
-						$prefix = $partNumber . ".";
+						$prefix = $partNumber . '.';
 					}
 					$data = $this->get_part($imap, $uid, $mimetype, $subStruct, $prefix . ($index + 1));
 					if ($data)
@@ -895,48 +893,48 @@ class Imap {
 
 	protected function get_mime_type($structure)
 	{
-		$primaryMimetype = array(
-			"TEXT",
-			"MULTIPART",
-			"MESSAGE",
-			"APPLICATION",
-			"AUDIO",
-			"IMAGE",
-			"VIDEO",
-			"OTHER",
-		);
+		$primaryMimetype = [
+			'TEXT',
+			'MULTIPART',
+			'MESSAGE',
+			'APPLICATION',
+			'AUDIO',
+			'IMAGE',
+			'VIDEO',
+			'OTHER',
+		];
 
 		if ($structure->subtype)
 		{
-			return $primaryMimetype[(int)$structure->type] . "/" . $structure->subtype;
+			return $primaryMimetype[(int)$structure->type] . '/' . $structure->subtype;
 		}
 
-		return "TEXT/PLAIN";
+		return 'TEXT/PLAIN';
 	}
 
 
-	protected function attachments_to_name($attachments = array())
+	protected function attachments_to_name($attachments = [])
 	{
-		$names = array();
+		$names = [];
 		foreach ($attachments as $attachment)
 		{
 			if (isset($attachment[0]['name']))
 			{
-				$names[] = array(
+				$names[] = [
 					'name'        => $attachment[0]['name'],
 					'size'        => $attachment[0]['size'],
-					"disposition" => $attachment['disposition'],
-					"reference"   => $attachment['reference'],
-				);
+					'disposition' => $attachment['disposition'],
+					'reference'   => $attachment['reference'],
+				];
 			}
 			else
 			{
-				$names[] = array(
+				$names[] = [
 					'name'        => $attachment['name'],
 					'size'        => $attachment['size'],
-					"disposition" => $attachment['disposition'],
-					"reference"   => $attachment['reference'],
-				);
+					'disposition' => $attachment['disposition'],
+					'reference'   => $attachment['reference'],
+				];
 			}
 		}
 
@@ -946,15 +944,15 @@ class Imap {
 
 	protected function get_attachments($mailNum, $part, $partNum = '')
 	{
-		$attachments = array();
+		$attachments = [];
 
 		if (isset($part->parts))
 		{
 			foreach ($part->parts as $key => $subpart)
 			{
-				if ($partNum != "")
+				if ($partNum != '')
 				{
-					$newPartNum = $partNum . "." . ($key + 1);
+					$newPartNum = $partNum . '.' . ($key + 1);
 				}
 				else
 				{
@@ -981,22 +979,22 @@ class Imap {
 		{
 			if (isset($part->disposition))
 			{
-				if (in_array(strtolower($part->disposition), array('attachment', 'inline')))
+				if (in_array(strtolower($part->disposition), ['attachment', 'inline']))
 				{
 					$partStruct = imap_bodystruct($this->imap_stream, $mailNum, $partNum);
-					$reference = isset($partStruct->id) ? $partStruct->id : "";
-					$attachmentDetails = array();
+					$reference = isset($partStruct->id) ? $partStruct->id : '';
+					$attachmentDetails = [];
 					if (isset($part->dparameters[0]))
 					{
-						$attachmentDetails = array(
-							"name"        => $part->dparameters[0]->value,
-							"partNum"     => $partNum,
-							"enc"         => @$partStruct->encoding,
-							"size"        => $part->bytes,
-							"reference"   => $reference,
-							"disposition" => $part->disposition,
-							"type"        => $part->subtype,
-						);
+						$attachmentDetails = [
+							'name'        => $part->dparameters[0]->value,
+							'partNum'     => $partNum,
+							'enc'         => @$partStruct->encoding,
+							'size'        => $part->bytes,
+							'reference'   => $reference,
+							'disposition' => $part->disposition,
+							'type'        => $part->subtype,
+						];
 					}
 
 					return $attachmentDetails;
@@ -1004,11 +1002,11 @@ class Imap {
 			}
 			else
 			{
-				if (isset($part->subtype) && in_array($part->subtype, array('JPEG', 'GIF', 'PNG')))
+				if (isset($part->subtype) && in_array($part->subtype, ['JPEG', 'GIF', 'PNG']))
 				{
 
 					$partStruct = imap_bodystruct($this->imap_stream, $mailNum, $partNum);
-					$reference = isset($partStruct->id) ? $partStruct->id : "";
+					$reference = isset($partStruct->id) ? $partStruct->id : '';
 					$disposition = empty($reference) ? 'attachment' : 'inline';
 					if (isset($part->dparameters[0]->value))
 					{
@@ -1020,20 +1018,20 @@ class Imap {
 					}
 					else
 					{
-						$name = "unknown";
+						$name = 'unknown';
 					}
-					$attachmentDetails = array();
+					$attachmentDetails = [];
 					if (isset($part->dparameters[0]))
 					{
-						$attachmentDetails = array(
-							"name"        => $name,
-							"partNum"     => $partNum,
-							"enc"         => $partStruct->encoding,
-							"size"        => $part->bytes,
-							"reference"   => $reference,
-							"disposition" => $disposition,
-							"type"        => $part->subtype,
-						);
+						$attachmentDetails = [
+							'name'        => $name,
+							'partNum'     => $partNum,
+							'enc'         => $partStruct->encoding,
+							'size'        => $part->bytes,
+							'reference'   => $reference,
+							'disposition' => $disposition,
+							'type'        => $part->subtype,
+						];
 					}
 
 					return $attachmentDetails;
