@@ -41,12 +41,21 @@ class Imap {
 	protected $folder = 'INBOX';
 
 
+	public function __construct($config = [])
+	{
+		if ( ! empty($config))
+		{
+			$this->connect($config);
+		}
+	}
+
+
 	/**
 	 * @param array $config Options: host, encrypto, user, pass
 	 *
 	 * @return bool|string True if is connected or string with the imap_error
 	 */
-	public function imap_connect($config = [])
+	public function connect($config = [])
 	{
 		$enc = '';
 		if ($config['encrypto'] != NULL && isset($config['encrypto']) && $config['encrypto'] == 'ssl')
