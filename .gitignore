@@ -1,8 +1,5 @@
-.idea/
-system/
-application/*
-!application/controllers/Imap_controller.php
+*
+!application/config/imap.php
 !application/libraries/Imap.php
-!application/views/view.php
-index.php
-phpstorm.php
+!README.md
+!LICENSE
